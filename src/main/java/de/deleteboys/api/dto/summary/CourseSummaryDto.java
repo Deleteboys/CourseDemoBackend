@@ -1,4 +1,4 @@
-package de.deleteboys.api.dto;
+package de.deleteboys.api.dto.summary;
 
 import de.deleteboys.domain.Course;
 

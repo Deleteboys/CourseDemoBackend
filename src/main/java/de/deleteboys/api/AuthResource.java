@@ -5,7 +5,7 @@ import de.deleteboys.api.dto.RegisterDto;
 import de.deleteboys.api.dto.ValidationErrorResponseDto;
 import de.deleteboys.domain.User;
 import de.deleteboys.exceptions.ValidationException;
-import de.deleteboys.security.AuthService;
+import de.deleteboys.services.AuthService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -27,7 +27,7 @@ public class AuthResource {
 
     @POST
     @Path("/login")
-    public Response login(LoginDto loginDto) {
+    public Response login(@Valid LoginDto loginDto) {
         String token = authService.login(loginDto);
         return Response.ok(Map.of("token", token)).build();
     }

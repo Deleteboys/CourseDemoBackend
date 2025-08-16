@@ -1,6 +1,6 @@
 package de.deleteboys.api;
 
-import de.deleteboys.api.dto.PermissionSummeryDto;
+import de.deleteboys.api.dto.summary.PermissionSummaryDto;
 import de.deleteboys.domain.Permission;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.GET;
@@ -16,9 +16,9 @@ public class PermissionResource {
 
     @GET
     @RolesAllowed("admin:full")
-    public List<PermissionSummeryDto> getAllPermissions() {
+    public List<PermissionSummaryDto> getAllPermissions() {
         List<Permission> allPermissionsFromDb = Permission.listAll();
-        return allPermissionsFromDb.stream().map(PermissionSummeryDto::new).toList();
+        return allPermissionsFromDb.stream().map(PermissionSummaryDto::new).toList();
     }
 
 }

@@ -1,4 +1,4 @@
-package de.deleteboys.security;
+package de.deleteboys.services;
 
 import de.deleteboys.api.dto.LoginDto;
 import de.deleteboys.api.dto.RegisterDto;
