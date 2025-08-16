@@ -69,6 +69,15 @@
             <artifactId>quarkus-elytron-security-common</artifactId>
             <version>3.25.3</version>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-jwt</artifactId>
+            <version>3.25.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-jwt-build</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

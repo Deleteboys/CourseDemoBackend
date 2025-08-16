@@ -1,12 +1,13 @@
 package de.deleteboys.domain;
 
+import de.deleteboys.domain.log.Log;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -25,4 +26,16 @@ public class User extends PanacheEntity {
     @Column(name = "created_at", updatable = false)
     public LocalDateTime createdAt;
 
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_permission",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id"))
+    public Set<Permission> permissions = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    public Set<Log> logs = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    public Set<Rating> ratings = new HashSet<>();
 }
