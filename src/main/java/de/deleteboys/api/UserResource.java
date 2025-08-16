@@ -1,15 +1,18 @@
 package de.deleteboys.api;
 
-import de.deleteboys.api.dto.UserCreateDto;
-import de.deleteboys.api.dto.ValidationErrorResponseDto;
+import de.deleteboys.api.dto.*;
+import de.deleteboys.domain.Permission;
+import de.deleteboys.domain.User;
 import de.deleteboys.exceptions.ValidationException;
 import de.deleteboys.security.UserService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -19,23 +22,25 @@ public class UserResource {
     @Inject
     UserService userService;
 
+    @GET
+    @RolesAllowed("admin:full")
+    public List<UserSummaryDto> getUser() {
+        return userService.getAllUsers();
+    }
+
+    @GET
+    @RolesAllowed("admin:full")
+    @Path("/{userId}/permissions")
+    public List<PermissionSummeryDto> getPermissions(@PathParam("userId") Long userId) {
+        return userService.getAllPermissionsFromUser(userId);
+    }
+
     @POST
-    public Response createUser(UserCreateDto userDto) {
-        try {
-            userService.createUser(userDto);
-
-            return Response.status(Response.Status.CREATED).entity(userDto).build();
-
-        } catch (ValidationException e) {
-            ValidationErrorResponseDto errorResponse = new ValidationErrorResponseDto(
-                    "Die Eingabe ist ungültig. Bitte korrigiere die Fehler.",
-                    e.getErrors()
-            );
-
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(errorResponse)
-                    .build();
-        }
+    @RolesAllowed("admin:full")
+    @Path("/{userId}/permissions")
+    public Response assignPermissionToUser(@PathParam("userId") Long userId, AssignPermissionDto assignPermissionDto) {
+        List<PermissionSummeryDto> permissions = userService.assignPermissionToUser(userId, assignPermissionDto.permissionId);
+        return Response.status(Response.Status.CREATED).entity(permissions).build();
     }
 
 }
