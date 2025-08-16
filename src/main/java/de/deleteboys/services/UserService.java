@@ -1,11 +1,16 @@
 package de.deleteboys.services;
 
+import de.deleteboys.api.dto.PasswordChangeDto;
 import de.deleteboys.api.dto.summary.PermissionSummaryDto;
 import de.deleteboys.api.dto.summary.UserSummaryDto;
 import de.deleteboys.domain.Permission;
 import de.deleteboys.domain.User;
+import de.deleteboys.security.JWTHelper;
+import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
@@ -13,6 +18,9 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class UserService {
+
+    @Inject
+    JWTHelper jwtHelper;
 
     public List<UserSummaryDto> getAllUsers() {
         List<User> allUsersFromDb = User.listAll();
@@ -74,6 +82,21 @@ public class UserService {
         user.persist();
 
         return getAllPermissionsFromUser(user);
+    }
+
+    @Transactional
+    public void changeOwnPassword(String email, PasswordChangeDto passwordChangeDto) {
+        User user = getUserByEmail(email);
+        if(!jwtHelper.validatePassword(passwordChangeDto.currentPassword, user.passwordHash)) {
+            throw new NotAuthorizedException("Das alte Passwort ist falsch.");
+        }
+        changePassword(user.id, passwordChangeDto.newPassword);
+    }
+
+    @Transactional
+    public void changePassword(Long userId, String password) {
+        User user = getUser(userId);
+        user.passwordHash = BcryptUtil.bcryptHash(password);
     }
 
 }

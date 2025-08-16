@@ -5,6 +5,7 @@ import de.deleteboys.api.dto.RegisterDto;
 import de.deleteboys.api.dto.ValidationErrorResponseDto;
 import de.deleteboys.domain.User;
 import de.deleteboys.exceptions.ValidationException;
+import de.deleteboys.security.JWTHelper;
 import de.deleteboys.services.AuthService;
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.inject.Inject;
@@ -29,6 +30,9 @@ public class AuthResource {
     @Inject
     AuthService authService;
 
+    @Inject
+    JWTHelper jwtHelper;
+
     @POST
     @Path("/login")
     public Response login(@Valid LoginDto loginDto, @Context HttpHeaders headers, @Context HttpServerRequest request) {
@@ -44,7 +48,7 @@ public class AuthResource {
     public Response register(@Valid RegisterDto registerDto) {
         try {
             User user = authService.createUser(registerDto);
-            String token = authService.generateJWT(user);
+            String token = jwtHelper.generateJWT(user);
 
             return Response.status(Response.Status.CREATED).entity(Map.of("token", token)).build();
 

@@ -5,6 +5,7 @@ import de.deleteboys.api.dto.RegisterDto;
 import de.deleteboys.domain.Permission;
 import de.deleteboys.domain.User;
 import de.deleteboys.exceptions.ValidationException;
+import de.deleteboys.security.JWTHelper;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,6 +25,9 @@ public class AuthService {
     @Inject
     LogService logService;
 
+    @Inject
+    JWTHelper jwtHelper;
+
     public String login(LoginDto loginDto, String ipAddress, String userAgent) {
         User user = User.find("username", loginDto.username).firstResult();
         if(user == null) {
@@ -31,21 +35,13 @@ public class AuthService {
             throw new NotAuthorizedException("Invalid username or password");
         }
 
-        if(!BcryptUtil.matches(loginDto.password, user.passwordHash)) {
+        if(!jwtHelper.validatePassword(loginDto.password, user.passwordHash)) {
             logService.logLoginAttempt(loginDto.username, ipAddress, userAgent, false);
             throw new NotAuthorizedException("Invalid username or password");
         }
 
-        String token = generateJWT(user);
+        String token = jwtHelper.generateJWT(user);
         logService.logLoginAttempt(loginDto.username, ipAddress, userAgent, true);
-        return token;
-    }
-
-    public String generateJWT(User user) {
-        Set<String> roles = user.permissions.stream().map(p -> p.name).collect(Collectors.toSet());
-
-        String token = Jwt.issuer("course-backend").subject(user.username).upn(user.email).groups(roles).expiresIn(Duration.ofHours(24)).sign();
-
         return token;
     }
 
