@@ -8,6 +8,7 @@ import de.deleteboys.exceptions.ValidationException;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotAuthorizedException;
 
@@ -20,18 +21,23 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class AuthService {
 
-    public String login(LoginDto loginDto) {
+    @Inject
+    LogService logService;
+
+    public String login(LoginDto loginDto, String ipAddress, String userAgent) {
         User user = User.find("username", loginDto.username).firstResult();
         if(user == null) {
+            logService.logLoginAttempt(loginDto.username, ipAddress, userAgent, false);
             throw new NotAuthorizedException("Invalid username or password");
         }
 
         if(!BcryptUtil.matches(loginDto.password, user.passwordHash)) {
+            logService.logLoginAttempt(loginDto.username, ipAddress, userAgent, false);
             throw new NotAuthorizedException("Invalid username or password");
         }
 
         String token = generateJWT(user);
-
+        logService.logLoginAttempt(loginDto.username, ipAddress, userAgent, true);
         return token;
     }
 

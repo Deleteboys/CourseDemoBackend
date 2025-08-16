@@ -35,6 +35,10 @@ public class UserService {
         return user;
     }
 
+    public User getUserOrNull(String username) {
+        return User.find("username", username).firstResult();
+    }
+
     public User getUserByEmail(String email) {
         User user = User.find("email", email).firstResult();
         if (user == null) {

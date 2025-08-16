@@ -16,6 +16,9 @@ public class UpdateLog extends Log {
     @Column(name = "field_name")
     public String fieldName;
 
+    @Column(name = "entity_id")
+    public Long entityId;
+
     @Column(name = "old_value", columnDefinition = "TEXT")
     public String oldValue;
 

@@ -6,6 +6,7 @@ import de.deleteboys.api.dto.ValidationErrorResponseDto;
 import de.deleteboys.domain.User;
 import de.deleteboys.exceptions.ValidationException;
 import de.deleteboys.services.AuthService;
+import io.vertx.core.http.HttpServerRequest;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -14,7 +15,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 
+import java.net.http.HttpRequest;
 import java.util.Map;
 
 @Path("/auth")
@@ -27,8 +31,11 @@ public class AuthResource {
 
     @POST
     @Path("/login")
-    public Response login(@Valid LoginDto loginDto) {
-        String token = authService.login(loginDto);
+    public Response login(@Valid LoginDto loginDto, @Context HttpHeaders headers, @Context HttpServerRequest request) {
+        String userAgent = headers.getHeaderString("User-Agent");
+        String ipAddress = request.remoteAddress().host();
+
+        String token = authService.login(loginDto, ipAddress, userAgent);
         return Response.ok(Map.of("token", token)).build();
     }
 

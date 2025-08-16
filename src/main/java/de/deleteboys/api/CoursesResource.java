@@ -1,5 +1,6 @@
 package de.deleteboys.api;
 
+import de.deleteboys.api.dto.create.CourseCreateDto;
 import de.deleteboys.api.dto.create.RatingCreateDto;
 import de.deleteboys.api.dto.summary.CourseSummaryDto;
 import de.deleteboys.api.dto.summary.RatingSummaryDto;
@@ -13,6 +14,7 @@ import de.deleteboys.services.UserService;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
@@ -77,7 +79,7 @@ public class CoursesResource {
     @POST
     @Path("/{courseId}/lessons/{lessonId}/ratings")
     @RolesAllowed("user:read")
-    public RatingSummaryDto rateLesson(@PathParam("courseId") Long courseId, @PathParam("lessonId") Long lessonId, RatingCreateDto rating) {
+    public RatingSummaryDto rateLesson(@PathParam("courseId") Long courseId, @PathParam("lessonId") Long lessonId, @Valid RatingCreateDto rating) {
         String email = securityIdentity.getPrincipal().getName();
         User user = userService.getUserByEmail(email);
         return lessonService.createRating(courseId, lessonId,rating, user);
@@ -90,5 +92,11 @@ public class CoursesResource {
     @RolesAllowed("admin:full")
     public CourseSummaryDto patchCourse(@PathParam("courseId") Long courseId, CourseUpdateDto dto) {
         return courseService.patchCourse(courseId, dto);
+    }
+
+    @POST
+    @RolesAllowed("admin:full")
+    public CourseSummaryDto createCourse(@Valid CourseCreateDto courseCreate) {
+        return courseService.createCourse(courseCreate);
     }
 }

@@ -20,6 +20,9 @@ import java.util.List;
 public class LessonService {
 
     @Inject
+    LogService logService;
+
+    @Inject
     CourseService courseService;
 
     public Lesson getLesson(Long lessonID) {
@@ -53,18 +56,22 @@ public class LessonService {
     public LessonSummaryDto patchLesson(Long lessonId, LessonUpdateDto lessonUpdate) {
         Lesson lessonFromDb = getLesson(lessonId);
         if(lessonUpdate.title != null && !lessonUpdate.title.equals(lessonFromDb.title)) {
+            logService.logEntityUpdate("lesson", lessonId, "description",lessonFromDb.title,lessonUpdate.title);
             lessonFromDb.title = lessonUpdate.title;
         }
         if(lessonUpdate.content != null && !lessonUpdate.content.equals(lessonFromDb.content)) {
+            logService.logEntityUpdate("lesson", lessonId, "description",lessonFromDb.content,lessonUpdate.content);
             lessonFromDb.content = lessonUpdate.content;
         }
         if(lessonUpdate.orderIndex != 0 && lessonUpdate.orderIndex != lessonFromDb.orderIndex) {
+            logService.logEntityUpdate("lesson", lessonId, "description",String.valueOf(lessonFromDb.orderIndex),String.valueOf(lessonUpdate.orderIndex));
             lessonFromDb.orderIndex = lessonUpdate.orderIndex;
         }
 
         if(lessonUpdate.courseId != 0) {
             Course course = courseService.getCourse(lessonUpdate.courseId);
             if(!lessonFromDb.course.equals(course)) {
+                logService.logEntityUpdate("lesson", lessonId, "course",String.valueOf(lessonFromDb.course.id),String.valueOf(lessonUpdate.courseId));
                 lessonFromDb.course = course;
             }
         }
